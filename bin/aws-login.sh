@@ -99,12 +99,7 @@ if [ -z "$SAML_EMAIL" ]; then
     read -r -p "Enter the email: " SAML_EMAIL
     export SAML_EMAIL
 else
-    echo "Email set to: $SAML_EMAIL"
-    read -r -p "Press Enter to confirm or enter a new email: " new_email
-    if [ -n "$new_email" ]; then
-        SAML_EMAIL="$new_email"
-        export SAML_EMAIL
-    fi
+    echo "Using email: $SAML_EMAIL"
 fi
 
 read_password "Enter the password: "
