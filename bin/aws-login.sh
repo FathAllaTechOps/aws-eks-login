@@ -119,7 +119,7 @@ fi
 load_profiles
 
 if [ ${#profiles[@]} -eq 0 ]; then
-    echo "No profiles found. Please run 'aws-login config' to configure profiles."
+    echo "No profiles found. Please run 'cloudgate saml config' to configure profiles."
     exit 1
 fi
 
