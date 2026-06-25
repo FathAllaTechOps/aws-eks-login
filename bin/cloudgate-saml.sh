@@ -39,20 +39,25 @@ display_help() {
 Usage: cloudgate saml [OPTION]
 
 Options:
-  config              Configure the AWS profiles for SAML authentication.
-  --help              Display this help message and exit.
-  --version           Display version information and exit.
-  --show-commands     Show available commands and exit.
+  config                Configure the AWS profiles for SAML authentication.
+  --help                Display this help message and exit.
+  --version             Display version information and exit.
+  --show-commands       Show available commands and exit.
+  --forget-password     Remove saved password from keychain.
 
 Description:
   Authenticates to multiple AWS accounts using SAML (saml2aws) and updates
   kubeconfig for all EKS clusters in eu-west-1 and eu-central-1.
 
+  Your password can be saved securely in the system keychain (macOS Keychain
+  or Linux secret-tool) so you don't need to type it every time.
+
   After login, optionally runs 'cloudgate eks-allowip' to whitelist your IP.
 
 Example:
-  cloudgate saml config   # first-time setup
-  cloudgate saml          # authenticate and update kubeconfigs
+  cloudgate saml config            # first-time setup
+  cloudgate saml                   # authenticate and update kubeconfigs
+  cloudgate saml --forget-password # clear saved password from keychain
 
 EOF
 }
@@ -65,16 +70,43 @@ display_commands() {
     cat <<EOF
 cloudgate available commands:
 
-  cloudgate saml                  AWS SAML login (saml2aws)
-  cloudgate saml config           Configure AWS profiles
-  cloudgate saml --help           Show help
-  cloudgate saml --version        Show version
-  cloudgate saml --show-commands  Show this command list
+  cloudgate saml                      AWS SAML login (saml2aws)
+  cloudgate saml config               Configure AWS profiles
+  cloudgate saml --forget-password    Remove saved password from keychain
+  cloudgate saml --help               Show help
+  cloudgate saml --version            Show version
+  cloudgate saml --show-commands      Show this command list
 
   cloudgate eks-allowip           Whitelist your IP on EKS clusters
   cloudgate --show-commands       Show all cloudgate commands
 
 EOF
+}
+
+KEYCHAIN_SERVICE="cloudgate-saml"
+
+keychain_get() {
+    if command -v security > /dev/null 2>&1; then
+        security find-generic-password -a "$1" -s "$KEYCHAIN_SERVICE" -w 2>/dev/null
+    elif command -v secret-tool > /dev/null 2>&1; then
+        secret-tool lookup service "$KEYCHAIN_SERVICE" account "$1" 2>/dev/null
+    fi
+}
+
+keychain_set() {
+    if command -v security > /dev/null 2>&1; then
+        security add-generic-password -a "$1" -s "$KEYCHAIN_SERVICE" -w "$2" -U 2>/dev/null
+    elif command -v secret-tool > /dev/null 2>&1; then
+        printf '%s' "$2" | secret-tool store --label="cloudgate SAML password" service "$KEYCHAIN_SERVICE" account "$1" 2>/dev/null
+    fi
+}
+
+keychain_delete() {
+    if command -v security > /dev/null 2>&1; then
+        security delete-generic-password -a "$1" -s "$KEYCHAIN_SERVICE" 2>/dev/null
+    elif command -v secret-tool > /dev/null 2>&1; then
+        secret-tool clear service "$KEYCHAIN_SERVICE" account "$1" 2>/dev/null
+    fi
 }
 
 read_password() {
@@ -102,6 +134,15 @@ fi
 
 if [ "$1" == "--show-commands" ]; then
     display_commands
+    exit 0
+fi
+
+if [ "$1" == "--forget-password" ]; then
+    if [ -z "$SAML_EMAIL" ]; then
+        read -r -p "Enter the email to forget password for: " SAML_EMAIL
+    fi
+    keychain_delete "$SAML_EMAIL"
+    echo -e "${GREEN}✓ Password removed from keychain for $SAML_EMAIL${RESET}"
     exit 0
 fi
 
@@ -133,7 +174,17 @@ else
     echo -e "${DIM}Using email: $SAML_EMAIL${RESET}"
 fi
 
-read_password "Enter the password: "
+password=$(keychain_get "$SAML_EMAIL")
+if [ -n "$password" ]; then
+    echo -e "${GREEN}🔑 Using saved password from keychain.${RESET} ${DIM}(run 'cloudgate saml --forget-password' to clear)${RESET}"
+else
+    read_password "Enter the password: "
+    read -r -p "Save password to keychain for next time? (yes/no): " save_pw
+    if [ "$save_pw" == "yes" ]; then
+        keychain_set "$SAML_EMAIL" "$password"
+        echo -e "${GREEN}✓ Password saved to keychain.${RESET}"
+    fi
+fi
 
 echo ""
 echo -e "${BOLD}Available AWS Accounts:${RESET}"
