@@ -110,10 +110,19 @@ if [ "$1" == "config" ]; then
     exit 0
 fi
 
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
 load_profiles
 
 if [ ${#profiles[@]} -eq 0 ]; then
-    echo "No profiles found. Please run 'cloudgate saml config' to configure profiles."
+    echo -e "${RED}✗ No profiles found. Please run 'cloudgate saml config' to configure profiles.${RESET}"
     exit 1
 fi
 
@@ -121,17 +130,19 @@ if [ -z "$SAML_EMAIL" ]; then
     read -r -p "Enter the email: " SAML_EMAIL
     export SAML_EMAIL
 else
-    echo "Using email: $SAML_EMAIL"
+    echo -e "${DIM}Using email: $SAML_EMAIL${RESET}"
 fi
 
 read_password "Enter the password: "
 
-echo "Available AWS Accounts:"
+echo ""
+echo -e "${BOLD}Available AWS Accounts:${RESET}"
 i=1
 for profile in "${profiles[@]}"; do
-    echo "$i) $profile"
+    echo -e "  ${CYAN}$i)${RESET} ${BOLD}$profile${RESET}"
     ((i++))
 done
+echo ""
 
 read -r -p "Enter the numbers of the profiles you want to use, separated by commas (e.g., 1,3,5): " selected_profiles
 
@@ -139,13 +150,15 @@ IFS=',' read -ra profile_indices <<< "$selected_profiles"
 
 login_with_profile() {
     local profile=$1
-    echo "Replacing aws_profile with '$profile' in ~/.saml2aws"
+    echo ""
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+    echo -e "🔐 ${BOLD}Logging in with profile: ${CYAN}$profile${RESET}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+
     sed -i '' '/aws_profile/d' ~/.saml2aws
     echo "aws_profile             = $profile" >> ~/.saml2aws
 
-    echo "Logging in with profile '$profile'"
     saml2aws login --force --username="$SAML_EMAIL" --password="$password" --skip-prompt
-    echo "---------------------------------------------"
 }
 
 for index in "${profile_indices[@]}"; do
@@ -153,11 +166,12 @@ for index in "${profile_indices[@]}"; do
     if [ -n "$profile" ]; then
         login_with_profile "$profile"
     else
-        echo "Invalid profile selection: $index. Skipping."
+        echo -e "${RED}✗ Invalid profile selection: $index. Skipping.${RESET}"
     fi
 done
 
-echo "Completed login for all selected profiles."
+echo ""
+echo -e "${GREEN}✓ Completed login for all selected profiles.${RESET}"
 unset password
 
 regions=(
@@ -165,31 +179,36 @@ regions=(
     "eu-central-1"
 )
 
+echo ""
+echo -e "${BOLD}Updating kubeconfigs...${RESET}"
 for region in "${regions[@]}"; do
     for index in "${profile_indices[@]}"; do
         profile=${profiles[$((index-1))]}
         if [ -n "$profile" ]; then
-            clusters=$(aws eks list-clusters --output text --profile "$profile" --region "$region" | awk '{print $2}')
+            clusters=$(aws eks list-clusters --output text --profile "$profile" --region "$region" 2>/dev/null | awk '{print $2}')
             while read -r cluster; do
-                if aws eks update-kubeconfig --region "$region" --name "$cluster" --profile "$profile"; then
-                    echo "Updated kubeconfig for cluster $cluster in $region using profile $profile"
+                [ -z "$cluster" ] && continue
+                if aws eks update-kubeconfig --region "$region" --name "$cluster" --profile "$profile" > /dev/null 2>&1; then
+                    echo -e "  ${GREEN}✓${RESET} ${BOLD}$cluster${RESET} ${DIM}($region ← $profile)${RESET}"
                 else
-                    echo "Failed to update kubeconfig for cluster $cluster in $region using profile $profile"
+                    echo -e "  ${RED}✗${RESET} Failed to update kubeconfig for ${BOLD}$cluster${RESET} ${DIM}($region ← $profile)${RESET}"
                 fi
             done <<< "$clusters"
         fi
     done
 done
 
-echo "############################################################"
-echo "#   Note: IP whitelisting is only needed for Production    #"
-echo "#   Lower accounts are open to 0.0.0.0/0 by default.      #"
-echo "############################################################"
+echo ""
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+echo -e "  💡 ${DIM}IP whitelisting is only needed for Production.${RESET}"
+echo -e "  ${DIM}Lower environments are open to 0.0.0.0/0 by default.${RESET}"
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+echo ""
 
 read -r -p "Do you want to whitelist your IP on EKS clusters? (yes/no): " proceed
 
 if [ "$proceed" == "yes" ]; then
     cloudgate eks-allowip
 else
-    echo "Whitelisting skipped."
+    echo -e "${DIM}Whitelisting skipped.${RESET}"
 fi
