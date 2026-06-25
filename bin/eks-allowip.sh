@@ -89,9 +89,7 @@ get_config_profiles() {
   grep '^\[profile ' ~/.aws/config | sed 's/^\[profile //;s/\]$//' | while read -r profile; do
     local block
     block=$(grep -A 20 "^\[profile $profile\]" ~/.aws/config)
-    if echo "$block" | grep -q 'login_session'; then
-      echo "$profile [aws-login]"
-    elif echo "$block" | grep -q 'sso_start_url'; then
+    if echo "$block" | grep -q 'sso_start_url'; then
       echo "$profile [sso]"
     fi
   done
@@ -100,7 +98,7 @@ get_config_profiles() {
 get_credential_profiles() {
   if [ ! -f ~/.aws/credentials ]; then return; fi
   grep '^\[.*\]$' ~/.aws/credentials | tr -d '[]' | while read -r profile; do
-    echo "$profile [creds]"
+    echo "$profile [saml]"
   done
 }
 
@@ -111,12 +109,8 @@ ensure_session() {
     if [[ "$profile_type" == "sso" ]]; then
       echo "SSO session expired for '$profile'. Launching browser login..."
       aws sso login --profile "$profile"
-    elif [[ "$profile_type" == "aws-login" ]]; then
-      echo "Session expired for '$profile'. Run 'aws-sso-login' to re-authenticate."
-      exit 1
     else
-      echo "Error: credentials invalid or expired for profile '$profile'."
-      echo "Re-authenticate via saml2aws or rotate your access keys."
+      echo "Error: credentials expired for profile '$profile'. Run 'cloudgate saml' to re-authenticate."
       exit 1
     fi
   fi
@@ -160,10 +154,8 @@ done
 aws_profile="${entry% \[*\]}"
 if [[ "$entry" == *"[sso]"* ]]; then
   profile_type="sso"
-elif [[ "$entry" == *"[aws-login]"* ]]; then
-  profile_type="aws-login"
 else
-  profile_type="creds"
+  profile_type="saml"
 fi
 
 ensure_session "$aws_profile" "$profile_type"
