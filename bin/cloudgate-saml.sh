@@ -200,8 +200,8 @@ done
 
 echo ""
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-echo -e "  💡 ${DIM}IP whitelisting is only needed for Production.${RESET}"
-echo -e "  ${DIM}Lower environments are open to 0.0.0.0/0 by default.${RESET}"
+echo -e "  💡 ${DIM}All clusters (lower and higher) are restricted to${RESET}"
+echo -e "  ${DIM}Vodafone VPN. Whitelist your IP to access them.${RESET}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 echo ""
 
