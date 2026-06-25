@@ -1,6 +1,6 @@
-# aws-eks-login
+# cloudgate
 
-[![Release Workflow](https://github.com/FathAllaTechOps/aws-eks-login/actions/workflows/release.yml/badge.svg)](https://github.com/FathAllaTechOps/aws-eks-login/actions/workflows/release.yml)
+[![Release Workflow](https://github.com/FathAllaTechOps/cloudgate/actions/workflows/release.yml/badge.svg)](https://github.com/FathAllaTechOps/cloudgate/actions/workflows/release.yml)
 
 CLI toolkit for AWS authentication and EKS cluster IP whitelisting.
 
@@ -50,7 +50,7 @@ chmod +x /usr/local/bin/saml2aws
 ### macOS — via Homebrew (recommended)
 
 ```bash
-brew tap FathAllaTechOps/aws-eks-login
+brew tap FathAllaTechOps/cloudgate
 brew install cloudgate
 ```
 
@@ -58,8 +58,8 @@ brew install cloudgate
 
 ```bash
 VERSION="v1.3.0"  # replace with the latest version
-curl -sSL "https://github.com/FathAllaTechOps/aws-eks-login/archive/${VERSION}.tar.gz" | tar -xz
-cd "aws-eks-login-${VERSION#v}"
+curl -sSL "https://github.com/FathAllaTechOps/cloudgate/archive/${VERSION}.tar.gz" | tar -xz
+cd "cloudgate-${VERSION#v}"
 sudo cp bin/cloudgate.sh   /usr/local/bin/cloudgate
 sudo cp bin/aws-login.sh   /usr/local/bin/aws-login
 sudo cp bin/eks-allowip.sh /usr/local/bin/eks-allowip
@@ -80,8 +80,8 @@ brew update && brew upgrade cloudgate
 
 ```bash
 VERSION="v1.3.0"  # replace with the latest version
-curl -sSL "https://github.com/FathAllaTechOps/aws-eks-login/archive/${VERSION}.tar.gz" | tar -xz
-cd "aws-eks-login-${VERSION#v}"
+curl -sSL "https://github.com/FathAllaTechOps/cloudgate/archive/${VERSION}.tar.gz" | tar -xz
+cd "cloudgate-${VERSION#v}"
 sudo cp bin/cloudgate.sh   /usr/local/bin/cloudgate
 sudo cp bin/aws-login.sh   /usr/local/bin/aws-login
 sudo cp bin/eks-allowip.sh /usr/local/bin/eks-allowip
@@ -172,7 +172,7 @@ cloudgate eks-allowip --show-commands   Show all available commands
 
 | Path | Purpose |
 | --- | --- |
-| `~/.aws-eks-login/profiles.config` | Profiles saved by `cloudgate saml config` |
+| `~/.cloudgate/profiles.config` | Profiles saved by `cloudgate saml config` |
 | `~/.aws/config` | AWS SSO and `aws login` profiles |
 | `~/.aws/credentials` | Static credential profiles |
 | `~/.saml2aws` | saml2aws configuration |
@@ -181,7 +181,7 @@ cloudgate eks-allowip --show-commands   Show all available commands
 
 ## Release process
 
-Releases are published via the [Release Workflow](https://github.com/FathAllaTechOps/aws-eks-login/actions/workflows/release.yml), triggered manually.
+Releases are published via the [Release Workflow](https://github.com/FathAllaTechOps/cloudgate/actions/workflows/release.yml), triggered manually.
 
 **Steps:**
 

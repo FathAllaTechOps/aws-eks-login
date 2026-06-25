@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG_DIR="$HOME/.aws-eks-login"
+CONFIG_DIR="$HOME/.cloudgate"
 CONFIG_FILE="$CONFIG_DIR/sso-profiles.config"
 VERSION="v1.0.0"
 

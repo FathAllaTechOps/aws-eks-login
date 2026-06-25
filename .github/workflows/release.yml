@@ -47,8 +47,8 @@ jobs:
         id: sha256
         run: |
           VERSION="${{ github.event.inputs.version }}"
-          TARBALL="aws-eks-login-${VERSION}.tar.gz"
-          curl -sSL -o "$TARBALL" "https://github.com/FathAllaTechOps/aws-eks-login/archive/${VERSION}.tar.gz"
+          TARBALL="cloudgate-${VERSION}.tar.gz"
+          curl -sSL -o "$TARBALL" "https://github.com/FathAllaTechOps/cloudgate/archive/${VERSION}.tar.gz"
           SHA=$(shasum -a 256 "$TARBALL" | awk '{print $1}')
           echo "SHA256: $SHA"
           echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
@@ -60,10 +60,10 @@ jobs:
           VERSION="${{ github.event.inputs.version }}"
           SHA="${{ steps.sha256.outputs.sha256 }}"
 
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/FathAllaTechOps/homebrew-aws-eks-login.git"
-          cd homebrew-aws-eks-login
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/FathAllaTechOps/homebrew-cloudgate.git"
+          cd homebrew-cloudgate
 
-          sed -i "s|url \".*\"|url \"https://github.com/FathAllaTechOps/aws-eks-login/archive/${VERSION}.tar.gz\"|" Formula/cloudgate.rb
+          sed -i "s|url \".*\"|url \"https://github.com/FathAllaTechOps/cloudgate/archive/${VERSION}.tar.gz\"|" Formula/cloudgate.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA}\"|" Formula/cloudgate.rb
           sed -i "s|version \".*\"|version \"${VERSION}\"|" Formula/cloudgate.rb
 
