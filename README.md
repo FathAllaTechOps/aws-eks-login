@@ -1,6 +1,8 @@
 # cloudgate
 
 [![Release Workflow](https://github.com/FathAllaTechOps/cloudgate/actions/workflows/release.yml/badge.svg)](https://github.com/FathAllaTechOps/cloudgate/actions/workflows/release.yml)
+[![GitHub Downloads](https://img.shields.io/github/downloads/FathAllaTechOps/cloudgate/total)](https://github.com/FathAllaTechOps/cloudgate/releases)
+[![Latest Release](https://img.shields.io/github/v/release/FathAllaTechOps/cloudgate)](https://github.com/FathAllaTechOps/cloudgate/releases/latest)
 
 `cloudgate` is a CLI toolkit for AWS authentication and EKS cluster IP whitelisting.
 
