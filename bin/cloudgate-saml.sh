@@ -4,7 +4,7 @@ CONFIG_DIR="$HOME/.cloudgate"
 CONFIG_FILE="$CONFIG_DIR/profiles.config"
 ROLES_FILE="$CONFIG_DIR/roles.config"
 CLOUDGATE_CONFIG="$CONFIG_DIR/config"
-VERSION="v2.7.0"
+VERSION="v2.8.0"
 
 # Default profiles shipped with the tool — can be overridden locally
 DEFAULT_PROFILES=(
