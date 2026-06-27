@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v2.6.0"
+VERSION="v2.7.0"
 
 # Colors
 RED='\033[0;31m'

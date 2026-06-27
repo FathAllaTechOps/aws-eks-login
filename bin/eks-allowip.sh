@@ -1,12 +1,12 @@
 #!/bin/bash
 
-VERSION="v2.6.0"
+VERSION="v2.7.0"
 
-# Colors
+# Colors — Vodafone brand palette
+VF_RED='\033[38;2;230;0;0m'    # Vodafone Red #E60000
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
 BOLD='\033[1m'
 DIM='\033[2m'
 RESET='\033[0m'
@@ -142,7 +142,7 @@ select aws_region in "${options[@]}"; do
     echo -e "${RED}Invalid selection. Please choose a valid AWS region.${RESET}"
   fi
 done
-echo -e "${DIM}Selected region: ${CYAN}$aws_region${RESET}"
+echo -e "${DIM}Selected region: ${VF_RED}$aws_region${RESET}"
 
 all_profiles=()
 while IFS= read -r line; do
@@ -164,7 +164,7 @@ select entry in "${all_profiles[@]}"; do
     echo -e "${RED}Invalid selection. Please choose a valid profile.${RESET}"
   fi
 done
-echo -e "${DIM}Selected profile: ${CYAN}$entry${RESET}"
+echo -e "${DIM}Selected profile: ${VF_RED}$entry${RESET}"
 
 aws_profile="${entry% \[*\]}"
 if [[ "$entry" == *"[sso]"* ]]; then
@@ -176,7 +176,7 @@ fi
 ensure_session "$aws_profile" "$profile_type"
 
 echo ""
-echo -e "${DIM}Fetching clusters in ${CYAN}$aws_region${DIM}...${RESET}"
+echo -e "${DIM}Fetching clusters in ${VF_RED}$aws_region${DIM}...${RESET}"
 clusters=$(aws eks list-clusters --region "$aws_region" --profile "$aws_profile" | jq -r '.clusters[]')
 
 if [ -z "$clusters" ]; then
@@ -185,10 +185,10 @@ if [ -z "$clusters" ]; then
 fi
 
 echo ""
-echo -e "${BOLD}Available EKS clusters in ${CYAN}$aws_region${RESET}${BOLD}:${RESET}"
+echo -e "${BOLD}Available EKS clusters in ${VF_RED}$aws_region${RESET}${BOLD}:${RESET}"
 i=1
 for cluster in $clusters; do
-  echo -e "  ${CYAN}$i)${RESET} ${BOLD}$cluster${RESET}"
+  echo -e "  ${VF_RED}$i)${RESET} ${BOLD}$cluster${RESET}"
   ((i++))
 done
 
@@ -204,7 +204,7 @@ fi
 echo ""
 externalIp=$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')
 personalCidr="$externalIp/32"
-echo -e "🌐 ${BOLD}Your current IP:${RESET} ${CYAN}$personalCidr${RESET}"
+echo -e "🌐 ${BOLD}Your current IP:${RESET} ${VF_RED}$personalCidr${RESET}"
 
 MAX_CIDRS=40
 
@@ -231,7 +231,7 @@ for index in "${cluster_indices[@]}"; do
 
   if [ "$newCount" -le "$MAX_CIDRS" ]; then
     updatedCidrs=$(printf '%s\n' "$currentCidrs" "$personalCidr" | grep -v '^$' | sort -u | tr '\n' ',' | sed 's/,$//')
-    echo -e "  ${CYAN}↑${RESET} ${BOLD}$cluster_name${RESET}${DIM}: appending $personalCidr ($newCount/$MAX_CIDRS CIDRs)${RESET}"
+    echo -e "  ${VF_RED}↑${RESET} ${BOLD}$cluster_name${RESET}${DIM}: appending $personalCidr ($newCount/$MAX_CIDRS CIDRs)${RESET}"
   else
     echo -e "  ${YELLOW}⚠${RESET} ${BOLD}$cluster_name${RESET}${DIM}: limit reached ($currentCount/$MAX_CIDRS). Resetting to fixed IPs + $personalCidr.${RESET}"
     reset_cidrs=("${fixed_cidrs[@]}" "$personalCidr")
@@ -241,7 +241,7 @@ for index in "${cluster_indices[@]}"; do
   aws eks update-cluster-config --name "$cluster_name" --region "$aws_region" \
     --resources-vpc-config publicAccessCidrs="$updatedCidrs" --profile "$aws_profile" > /dev/null 2>&1
 
-  echo -e "  ${GREEN}✓${RESET} ${BOLD}$cluster_name${RESET} updated in ${CYAN}$aws_region${RESET}"
+  echo -e "  ${GREEN}✓${RESET} ${BOLD}$cluster_name${RESET} updated in ${VF_RED}$aws_region${RESET}"
 done
 
 echo ""
