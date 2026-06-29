@@ -128,7 +128,7 @@ ensure_session() {
 echo ""
 echo -e "${BOLD}Choose the AWS region:${RESET}"
 PS3=$'\n'"Region #? "
-options=("eu-west-1" "eu-central-1" "us-east-2" "us-east-1")
+options=("eu-west-1" "eu-west-2" "eu-central-1" "us-east-2" "us-east-1")
 select aws_region in "${options[@]}"; do
   for option in "${options[@]}"; do
     if [[ "$aws_region" == "$option" ]]; then

@@ -186,7 +186,7 @@ Options:
 
 Description:
   Authenticates to multiple AWS accounts using SAML (saml2aws) and updates
-  kubeconfig for all EKS clusters in eu-west-1 and eu-central-1.
+  kubeconfig for all EKS clusters in eu-west-1, eu-west-2 and eu-central-1.
 
   Your password can be saved securely in the system keychain (macOS Keychain
   or Linux secret-tool) so you don't need to type it every time.
@@ -441,6 +441,7 @@ unset password
 
 regions=(
     "eu-west-1"
+    "eu-west-2"
     "eu-central-1"
 )
 
