@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v2.8.0"
+VERSION="v2.9.0"
 
 # Colors — Vodafone brand palette
 VF_RED='\033[38;2;230;0;0m'    # Vodafone Red #E60000
